@@ -2,11 +2,15 @@ require 'sinatra'
 require 'active_support'
 require 'feedzirra'
 
+class EntryWithBlogName < SimpleDelegator
+  attr_accessor :feed_title
+end
+
 get '/' do
   page = "<ol>"
   entries_to_display.each do |e|
     begin
-      page << "<li>#{e.published.to_s(:rfc822)} </br> <a href='#{e.url}'>#{e.title}:: #{e.title}</a></li>\n"  
+      page << "<li>#{e.published.to_s(:rfc822)} </br> <a href='#{e.url}'>#{e.feed_title}:: #{e.title}</a></li>\n"  
     rescue Exception => e
       #someone's blog crashed or went offline, but we don't really care, so just continue
     end
@@ -22,8 +26,9 @@ def entries_to_display
   entries_to_display = []
   feeds.each_pair do |name, feed|
     feed.entries[0..5].each do |entry|
-      entry.title = feed.title
-      entries_to_display << entry
+      named_entry = EntryWithBlogName.new(entry)
+      named_entry.feed_title = feed.title
+      entries_to_display << named_entry
     end
   end
   # sort the list by date published, mixing the blogs in the list
