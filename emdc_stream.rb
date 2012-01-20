@@ -2,7 +2,7 @@ require 'sinatra'
 require 'active_support'
 require 'feedzirra'
 
-class EntryWithBlogName < SimpleDelegator
+class EntryWithFeedTitle < SimpleDelegator
   attr_accessor :feed_title
 end
 
@@ -26,7 +26,7 @@ def entries_to_display
   entries_to_display = []
   feeds.each_pair do |name, feed|
     feed.entries[0..5].each do |entry|
-      named_entry = EntryWithBlogName.new(entry)
+      named_entry = EntryWithFeedTitle.new(entry)
       named_entry.feed_title = feed.title
       entries_to_display << named_entry
     end
